@@ -7,118 +7,126 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
-        body { background-color: #0d1117; color: white; font-family: sans-serif; margin: 0; padding: 0; }
+        body { background-color: #eef2f5; color: #333; font-family: sans-serif; margin: 0; padding: 0; position: relative; }
         
-        .no-print-zone { 
-            text-align: center; padding: 15px; background: #161b22; border-bottom: 2px solid #00aaff; 
+        /* دوگمەی نوێکردنەوەی خڕ */
+        .btn-refresh { 
+            position: fixed; top: 15px; right: 15px; 
+            width: 45px; height: 45px; border-radius: 50%; 
+            background: #ffcc00; color: #000; border: 2px solid #333;
+            cursor: pointer; font-size: 20px; z-index: 1000;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
         }
-        .btn { padding: 10px 20px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold; }
-        .btn-up { background: #ffcc00; color: #000; }
-        .btn-down { background: #ff0000; color: white; margin-right: 2mm; }
+        .btn-refresh:active { transform: scale(0.9); }
+
+        .no-print-zone { 
+            text-align: center; padding: 25px; background: #161b22; border-bottom: 2px solid #00aaff; 
+            display: flex; justify-content: center; gap: 20px; align-items: center;
+        }
+
+        .btn { padding: 12px 25px; cursor: pointer; border: none; border-radius: 6px; font-weight: bold; font-size: 16px; }
+        .btn-up { background: #ff4d4d; color: white; } 
+        .btn-down { background: #28a745; color: white; } 
 
         .report-page {
-            width: 210mm;
-            min-height: 297mm;
-            background-color: #000;
-            margin: 10mm auto;
-            padding: 5mm;
-            box-sizing: border-box;
+            width: 210mm; min-height: 297mm; background-color: #000;
+            margin: 20px auto; padding: 8mm; box-sizing: border-box;
+            display: flex; flex-direction: column; box-shadow: 0 0 15px rgba(0,0,0,0.2);
         }
 
         .header-info {
-            display: grid;
-            grid-template-columns: 1fr 2fr 1fr;
-            gap: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #333;
-            align-items: center;
-            margin-bottom: 10px;
+            display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 10px;
+            padding-bottom: 10px; border-bottom: 1px solid #333; align-items: center; margin-bottom: 15px;
         }
 
         .clinic-name-ar { text-align: center; }
-        .clinic-name-ar .main-title { color: #00aaff; font-size: 22px; font-weight: bold; display: block; }
-        .clinic-name-ar .sub-title { color: #ffffff; font-size: 12px; display: block; }
-
-        .info-box { font-size: 11px; color: #aaa; }
+        .clinic-name-ar .main-title { color: #00aaff; font-size: 26px; font-weight: bold; display: block; }
+        .clinic-name-ar .sub-title { color: #ffffff; font-size: 14px; display: block; }
+        .info-box { font-size: 13px; color: #eee; }
 
         .top-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 2px;
-            margin-bottom: 5px;
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-bottom: 10px;
         }
         .top-row div { 
-            border: 0.5px solid #222; 
-            height: 200px; 
-            background: #000; 
-            display: flex; align-items: center; justify-content: center; 
+            border: 1px solid #333; height: 220px; background: #000; 
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
         }
         .top-row img { max-width: 100%; max-height: 100%; object-fit: contain; }
 
         .image-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
-            gap: 1px;
+            display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; flex-grow: 1;
         }
         .grid-item {
-            aspect-ratio: 0.8;
-            border: 0.5px solid #111;
-            position: relative;
-            background: #000;
-            display: flex; align-items: center; justify-content: center;
+            aspect-ratio: 1; border: 0.5px solid #222; position: relative;
+            background: #000; display: flex; align-items: center; justify-content: center;
         }
         .grid-item img { max-width: 100%; max-height: 100%; object-fit: contain; }
         
         .index-tag {
-            position: absolute; top: 1px; left: 1px;
-            font-size: 7px; color: #ffcc00; background: rgba(0,0,0,0.6); padding: 1px 2px;
+            position: absolute; top: 2px; left: 2px; font-size: 9px; 
+            color: #ffcc00; background: rgba(0,0,0,0.7); padding: 1px 4px; border-radius: 2px;
         }
 
-        .footer-credit { text-align: center; font-size: 10px; color: #333; margin-top: 20px; }
+        .footer-credit { text-align: center; font-size: 12px; color: #444; margin-top: 15px; padding-bottom: 5px; }
         #file-input { display: none; }
+
+        @media print {
+            .no-print-zone, .btn-refresh { display: none; }
+            body { background: none; }
+            .report-page { margin: 0; box-shadow: none; }
+        }
     </style>
 </head>
 <body>
 
+<!-- دوگمەی نوێکردنەوەی ڕاستەقینە -->
+<button title="نوێ کردنەوەی پەڕە" class="btn-refresh" onclick="window.location.href = window.location.href;">🔄</button>
+
 <div class="no-print-zone">
-    <label for="file-input" class="btn btn-up">📁 بارکردنی مەلەفی PDF</label>
+    <label for="file-input" class="btn btn-up">📁 بارکردنی تیشک pdf</label>
     <input type="file" id="file-input" accept="application/pdf">
-    <button id="pdf-btn" class="btn btn-down" style="display:none;">📥 دابەزاندنی PDF</button>
+    <button id="pdf-btn" class="btn btn-down" style="display:none;">📥 ئەنجام بە pdf</button>
 </div>
 
-<div id="report" class="report-page">
-    <div class="header-info">
-        <div class="info-box">
-            Patient Name: <span id="patient-name-label" style="color:#fff;">...</span><br>
-            ID: <span id="scan-id">#CBCT-8K</span>
+<div id="report-container">
+    <div id="report" class="report-page">
+        <div class="header-info">
+            <div class="info-box">
+                Patient: <span id="patient-name-label" style="color:#fff; font-weight: bold;">...</span>
+            </div>
+            <div class="clinic-name-ar">
+                <span class="main-title">عیادة باوايي</span>
+                <span class="sub-title">لاشعة الاسنان والوجة الفکین</span>
+            </div>
+            <div class="info-box" style="text-align:left;">
+                Date: <span id="current-date" style="color:#fff;"></span>
+            </div>
         </div>
-        <div class="clinic-name-ar">
-            <span class="main-title">عیادة باوايي</span>
-            <span class="sub-title">لاشعة الاسنان والوجة الفكين</span>
+
+        <div class="top-row" id="top-row-container">
+            <div id="img1"></div>
+            <div id="img2"></div>
+            <div id="img3"></div>
         </div>
-        <div class="info-box" style="text-align:left;">
-            Date: 2026-05-12<br>
-            System: 8K Precision
-        </div>
+
+        <div class="image-grid" id="grid"></div>
+        <div class="footer-credit">Developed by: Mohammed Ezzadin</div>
     </div>
-
-    <div class="top-row">
-        <div id="img1"></div>
-        <div id="img2"></div>
-        <div id="img3"></div>
-    </div>
-
-    <div class="image-grid" id="grid"></div>
-
-    <div class="footer-credit">Developed by: Mohammed Ezzadin</div>
 </div>
 
 <script>
     const fileInput = document.getElementById('file-input');
-    const grid = document.getElementById('grid');
     const pdfBtn = document.getElementById('pdf-btn');
     const patientNameLabel = document.getElementById('patient-name-label');
+    const dateLabel = document.getElementById('current-date');
+    const reportContainer = document.getElementById('report-container');
+    
     let currentFileName = "Report";
+
+    // مێژووی ئەمڕۆ
+    dateLabel.innerText = new Date().toISOString().split('T')[0];
 
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
@@ -132,28 +140,40 @@
         const arrayBuffer = await file.arrayBuffer();
         const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
         
-        grid.innerHTML = '';
+        const firstGrid = document.getElementById('grid');
+        firstGrid.innerHTML = '';
         const topSlots = [document.getElementById('img1'), document.getElementById('img2'), document.getElementById('img3')];
         topSlots.forEach(s => s.innerHTML = '');
 
-        if(pdf.numPages > 20) {
-            grid.style.gridTemplateColumns = "repeat(auto-fill, minmax(50px, 1fr))";
-        }
+        let currentGrid = firstGrid;
+        let imagesInCurrentGrid = 0;
+        const maxImagesPerPage = 72; 
 
         for (let i = 1; i <= pdf.numPages; i++) {
             const page = await pdf.getPage(i);
             const viewport = page.getViewport({ scale: 2.5 }); 
             const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
             canvas.height = viewport.height;
             canvas.width = viewport.width;
-            await page.render({ canvasContext: canvas.getContext('2d'), viewport: viewport }).promise;
             
+            await page.render({ canvasContext: context, viewport: viewport }).promise;
+            const imgData = canvas.toDataURL('image/jpeg', 0.9);
             const img = document.createElement('img');
-            img.src = canvas.toDataURL('image/jpeg', 0.9);
+            img.src = imgData;
 
             if (i <= 3) {
                 topSlots[i-1].appendChild(img);
             } else {
+                if (imagesInCurrentGrid >= maxImagesPerPage) {
+                    const newPage = document.createElement('div');
+                    newPage.className = 'report-page';
+                    newPage.innerHTML = `<div class="image-grid"></div><div class="footer-credit">Developed by: Mohammed Ezzadin</div>`;
+                    reportContainer.appendChild(newPage);
+                    currentGrid = newPage.querySelector('.image-grid');
+                    imagesInCurrentGrid = 0;
+                }
+
                 const item = document.createElement('div');
                 item.className = 'grid-item';
                 const tag = document.createElement('span');
@@ -161,19 +181,20 @@
                 tag.innerText = i - 3;
                 item.appendChild(tag);
                 item.appendChild(img);
-                grid.appendChild(item);
+                currentGrid.appendChild(item);
+                imagesInCurrentGrid++;
             }
         }
         pdfBtn.style.display = 'inline-block';
     });
 
     pdfBtn.onclick = () => {
-        const element = document.getElementById('report');
+        const element = document.getElementById('report-container');
         html2pdf().set({
             margin: 0,
             filename: currentFileName + '_8K.pdf',
             image: { type: 'jpeg', quality: 1.0 },
-            html2canvas: { scale: 2, backgroundColor: '#000000' },
+            html2canvas: { scale: 2, useCORS: true, backgroundColor: '#000000' },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         }).from(element).save();
     };
