@@ -7,69 +7,75 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
-        body { background-color: #eef2f5; color: #333; font-family: sans-serif; margin: 0; padding: 0; position: relative; }
+        body { background-color: #d1e3f0; color: #333; font-family: sans-serif; margin: 0; padding: 0; }
         
-        /* دوگمەی نوێکردنەوەی خڕ */
         .btn-refresh { 
             position: fixed; top: 15px; right: 15px; 
             width: 45px; height: 45px; border-radius: 50%; 
             background: #ffcc00; color: #000; border: 2px solid #333;
             cursor: pointer; font-size: 20px; z-index: 1000;
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-            transition: transform 0.2s;
         }
-        .btn-refresh:active { transform: scale(0.9); }
 
         .no-print-zone { 
-            text-align: center; padding: 25px; background: #161b22; border-bottom: 2px solid #00aaff; 
-            display: flex; justify-content: center; gap: 20px; align-items: center;
+            text-align: center; padding: 20px; background: #1a2a3a; border-bottom: 3px solid #00aaff; 
+            display: flex; justify-content: center; gap: 15px; align-items: center;
         }
 
-        .btn { padding: 12px 25px; cursor: pointer; border: none; border-radius: 6px; font-weight: bold; font-size: 16px; }
+        .btn { padding: 10px 20px; cursor: pointer; border: none; border-radius: 6px; font-weight: bold; }
         .btn-up { background: #ff4d4d; color: white; } 
         .btn-down { background: #28a745; color: white; } 
 
         .report-page {
-            width: 210mm; min-height: 297mm; background-color: #000;
-            margin: 20px auto; padding: 8mm; box-sizing: border-box;
-            display: flex; flex-direction: column; box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            width: 210mm; min-height: 296mm; background-color: #fff;
+            margin: 10px auto; padding: 10mm; box-sizing: border-box;
+            display: flex; flex-direction: column; position: relative;
         }
 
         .header-info {
             display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 10px;
-            padding-bottom: 10px; border-bottom: 1px solid #333; align-items: center; margin-bottom: 15px;
+            padding-bottom: 10px; border-bottom: 2px solid #00aaff; align-items: center; margin-bottom: 10px;
         }
 
-        .clinic-name-ar { text-align: center; }
-        .clinic-name-ar .main-title { color: #00aaff; font-size: 26px; font-weight: bold; display: block; }
-        .clinic-name-ar .sub-title { color: #ffffff; font-size: 14px; display: block; }
-        .info-box { font-size: 13px; color: #eee; }
-
-        .top-row {
-            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-bottom: 10px;
-        }
-        .top-row div { 
-            border: 1px solid #333; height: 220px; background: #000; 
-            display: flex; align-items: center; justify-content: center; overflow: hidden;
-        }
-        .top-row img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .clinic-name-ar .main-title { color: #00aaff; font-size: 28px; font-weight: bold; display: block; text-align: center; }
+        .clinic-name-ar .sub-title { color: #555; font-size: 14px; display: block; text-align: center; }
+        .info-box { font-size: 14px; color: #333; font-weight: bold; }
 
         .image-grid {
-            display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; flex-grow: 1;
-        }
-        .grid-item {
-            aspect-ratio: 1; border: 0.5px solid #222; position: relative;
-            background: #000; display: flex; align-items: center; justify-content: center;
-        }
-        .grid-item img { max-width: 100%; max-height: 100%; object-fit: contain; }
-        
-        .index-tag {
-            position: absolute; top: 2px; left: 2px; font-size: 9px; 
-            color: #ffcc00; background: rgba(0,0,0,0.7); padding: 1px 4px; border-radius: 2px;
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 5px; 
         }
 
-        .footer-credit { text-align: center; font-size: 12px; color: #444; margin-top: 15px; padding-bottom: 5px; }
+        .grid-item {
+            height: 205px; /* قەبارەیەکی مامناوەند و گونجاو */
+            border: 1px solid #ddd;
+            overflow: hidden;
+            background: #000; /* ئەگەر وێنەکە زۆر جیاواز بوو ڕەش دیار بێت جوانترە */
+            position: relative;
+            display: flex;
+        }
+
+        /* لێرە وێنەکە پڕ بە خانەکە دەبێت */
+        img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; /* ئەمە وێنەکە پڕ بە خانەکە دەکات بێ تێکچوون */
+        } 
+        
+        .index-tag {
+            position: absolute; top: 5px; left: 5px; font-size: 11px; 
+            color: #fff; background: rgba(0, 170, 255, 0.85); 
+            padding: 2px 6px; border-radius: 3px;
+            z-index: 5;
+        }
+
+        .footer-credit { 
+            margin-top: auto;
+            text-align: center; font-size: 10px; color: #aaa; 
+            padding-top: 10px;
+        }
+
         #file-input { display: none; }
 
         @media print {
@@ -81,73 +87,56 @@
 </head>
 <body>
 
-<!-- دوگمەی نوێکردنەوەی ڕاستەقینە -->
-<button title="نوێ کردنەوەی پەڕە" class="btn-refresh" onclick="window.location.href = window.location.href;">🔄</button>
+<button title="Refresh" class="btn-refresh" onclick="window.location.reload();">🔄</button>
 
 <div class="no-print-zone">
-    <label for="file-input" class="btn btn-up">📁 بارکردنی تیشک pdf</label>
+    <label for="file-input" class="btn btn-up">📁 بارکردنی تیشک PDF</label>
     <input type="file" id="file-input" accept="application/pdf">
-    <button id="pdf-btn" class="btn btn-down" style="display:none;">📥 ئەنجام بە pdf</button>
+    <button id="pdf-btn" class="btn btn-down" style="display:none;">📥 پاشەکەوتکردن وەک PDF</button>
 </div>
 
-<div id="report-container">
-    <div id="report" class="report-page">
-        <div class="header-info">
-            <div class="info-box">
-                Patient: <span id="patient-name-label" style="color:#fff; font-weight: bold;">...</span>
-            </div>
-            <div class="clinic-name-ar">
-                <span class="main-title">عیادة باوايي</span>
-                <span class="sub-title">لاشعة الاسنان والوجة الفکین</span>
-            </div>
-            <div class="info-box" style="text-align:left;">
-                Date: <span id="current-date" style="color:#fff;"></span>
-            </div>
-        </div>
-
-        <div class="top-row" id="top-row-container">
-            <div id="img1"></div>
-            <div id="img2"></div>
-            <div id="img3"></div>
-        </div>
-
-        <div class="image-grid" id="grid"></div>
-        <div class="footer-credit">Developed by: Mohammed Ezzadin</div>
-    </div>
-</div>
+<div id="report-container"></div>
 
 <script>
     const fileInput = document.getElementById('file-input');
     const pdfBtn = document.getElementById('pdf-btn');
-    const patientNameLabel = document.getElementById('patient-name-label');
-    const dateLabel = document.getElementById('current-date');
     const reportContainer = document.getElementById('report-container');
     
-    let currentFileName = "Report";
-
-    // مێژووی ئەمڕۆ
-    dateLabel.innerText = new Date().toISOString().split('T')[0];
-
+    const today = new Date().toISOString().split('T')[0];
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
     fileInput.addEventListener('change', async (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
-        currentFileName = file.name.replace(/\.[^/.]+$/, "");
-        patientNameLabel.innerText = currentFileName;
-
+        const patientName = file.name.replace(/\.[^/.]+$/, "");
         const arrayBuffer = await file.arrayBuffer();
         const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
         
-        const firstGrid = document.getElementById('grid');
-        firstGrid.innerHTML = '';
-        const topSlots = [document.getElementById('img1'), document.getElementById('img2'), document.getElementById('img3')];
-        topSlots.forEach(s => s.innerHTML = '');
+        reportContainer.innerHTML = '';
+        
+        const createPage = () => {
+            const pageDiv = document.createElement('div');
+            pageDiv.className = 'report-page';
+            pageDiv.innerHTML = `
+                <div class="header-info">
+                    <div class="info-box">Patient: <span style="color:#00aaff;">${patientName}</span></div>
+                    <div class="clinic-name-ar">
+                        <span class="main-title">عيادة باوايي</span>
+                        <span class="sub-title">لاشعة الاسنان والوجه والفكين</span>
+                    </div>
+                    <div class="info-box" style="text-align:left;">Date: ${today}</div>
+                </div>
+                <div class="image-grid"></div>
+                <div class="footer-credit">Developed by: Mohammed Ezzadin</div>
+            `;
+            reportContainer.appendChild(pageDiv);
+            return pageDiv.querySelector('.image-grid');
+        };
 
-        let currentGrid = firstGrid;
-        let imagesInCurrentGrid = 0;
-        const maxImagesPerPage = 72; 
+        let currentGrid = createPage();
+        let imagesCount = 0;
+        const maxImagesPerPage = 12;
 
         for (let i = 1; i <= pdf.numPages; i++) {
             const page = await pdf.getPage(i);
@@ -158,32 +147,28 @@
             canvas.width = viewport.width;
             
             await page.render({ canvasContext: context, viewport: viewport }).promise;
-            const imgData = canvas.toDataURL('image/jpeg', 0.9);
-            const img = document.createElement('img');
-            img.src = imgData;
 
-            if (i <= 3) {
-                topSlots[i-1].appendChild(img);
-            } else {
-                if (imagesInCurrentGrid >= maxImagesPerPage) {
-                    const newPage = document.createElement('div');
-                    newPage.className = 'report-page';
-                    newPage.innerHTML = `<div class="image-grid"></div><div class="footer-credit">Developed by: Mohammed Ezzadin</div>`;
-                    reportContainer.appendChild(newPage);
-                    currentGrid = newPage.querySelector('.image-grid');
-                    imagesInCurrentGrid = 0;
-                }
+            if (imagesCount >= maxImagesPerPage) {
+                currentGrid = createPage();
+                imagesCount = 0;
+            }
 
-                const item = document.createElement('div');
-                item.className = 'grid-item';
+            const item = document.createElement('div');
+            item.className = 'grid-item';
+            
+            if (i > 3) {
                 const tag = document.createElement('span');
                 tag.className = 'index-tag';
                 tag.innerText = i - 3;
                 item.appendChild(tag);
-                item.appendChild(img);
-                currentGrid.appendChild(item);
-                imagesInCurrentGrid++;
             }
+
+            const img = document.createElement('img');
+            img.src = canvas.toDataURL('image/jpeg', 0.95);
+            item.appendChild(img);
+            
+            currentGrid.appendChild(item);
+            imagesCount++;
         }
         pdfBtn.style.display = 'inline-block';
     });
@@ -192,9 +177,9 @@
         const element = document.getElementById('report-container');
         html2pdf().set({
             margin: 0,
-            filename: currentFileName + '_8K.pdf',
+            filename: 'Bawayi_Dental_Report.pdf',
             image: { type: 'jpeg', quality: 1.0 },
-            html2canvas: { scale: 2, useCORS: true, backgroundColor: '#000000' },
+            html2canvas: { scale: 2.5, useCORS: true },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         }).from(element).save();
     };
